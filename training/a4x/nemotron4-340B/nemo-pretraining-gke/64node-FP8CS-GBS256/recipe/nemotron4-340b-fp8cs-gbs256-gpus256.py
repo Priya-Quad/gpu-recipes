@@ -32,7 +32,7 @@ def recipe(
   # Start from the Nemo standard recipe.
   pretrain = nemotron4_340b.pretrain_recipe(performance_mode=True)
 
-  num_nodes = 32
+  num_nodes = 64
   num_gpus_per_node = 4
   mbs = 2
   gbs = 256
