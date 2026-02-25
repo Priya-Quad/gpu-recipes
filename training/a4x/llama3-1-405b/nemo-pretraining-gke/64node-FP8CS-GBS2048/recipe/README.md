@@ -83,7 +83,7 @@ gcloud container clusters get-credentials $CLUSTER_NAME --region $CLUSTER_REGION
 
 ### Configure and submit a pretraining job
 
-#### Using 16 node (64 gpus) fp8 precision
+#### Using 64 node (256 gpus) fp8 precision
 To execute the job with the default settings, run the following command from
 your client:
 
