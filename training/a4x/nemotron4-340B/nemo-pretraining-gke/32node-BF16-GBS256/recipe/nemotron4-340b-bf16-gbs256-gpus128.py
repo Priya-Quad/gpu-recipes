@@ -32,27 +32,26 @@ def recipe(
   # Start from the Nemo standard recipe.
   pretrain = nemotron4_340b.pretrain_recipe(performance_mode=True)
 
-  num_nodes = 64
+  num_nodes = 32
   num_gpus_per_node = 4
-  mbs = 2
+  mbs = 1
   gbs = 256
   max_steps = 100
   tp_size = 4
   pp_size = 8
   cp_size = 1
-  vp_size = 6
+  vp_size = 1
   ep_size = 1
-  enable_cuda_graphs = False
-  compute_dtype = "fp8"
-  fp8_recipe = "cs"
+  activation_offload_layers = 0
+  enable_cuda_graphs = True
+  compute_dtype = "bf16"
+  fp8_recipe = None
   nccl_communicator_config_path = None
   use_mcore_fsdp = False
   use_fsdp_double_buffer = False
   use_user_buffer_registration = False
   use_sharp = False
   keep_fsdp_fp8_transpose_cache = False
-
-  activation_offload_layers = 0
 
   pretrain = set_primary_perf_configs(
       pretrain,
@@ -67,6 +66,7 @@ def recipe(
       cp_size=cp_size,
       vp_size=vp_size,
       ep_size=ep_size,
+      activation_offload_layers=activation_offload_layers,
       enable_cuda_graphs=enable_cuda_graphs,
       compute_dtype=compute_dtype,
       fp8_recipe=fp8_recipe,
