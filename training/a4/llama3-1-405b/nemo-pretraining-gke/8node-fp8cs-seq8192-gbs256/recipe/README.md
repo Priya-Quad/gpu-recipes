@@ -1,8 +1,8 @@
-<!-- mdformat global-off -->
-# Pretrain llama3-1-405b workloads on a4x GKE Node pools with Nvidia NeMo Framework
+ <!-- mdformat global-off -->
+# Pretrain llama3-1-405b workloads on a4 GKE Node pools with Nvidia NeMo Framework
 
 This recipe outlines the steps for running a llama3-1-405b pretraining
-workload on [a4x GKE Node pools](https://cloud.google.com/kubernetes-engine) by using the
+workload on [a4 GKE Node pools](https://cloud.google.com/kubernetes-engine) by using the
 [NVIDIA NeMo framework](https://github.com/NVIDIA/nemo).
 
 ## Orchestration and deployment tools
@@ -19,8 +19,8 @@ For this recipe, the following setup is used:
 This recipe has been optimized for and tested with the following configuration:
 
 - GKE cluster
-Please follow Cluster Toolkit [instructions](https://github.com/GoogleCloudPlatform/cluster-toolkit/tree/main/examples/gke-a4x)
-to create your a4x GKE cluster.
+Please follow Cluster Toolkit [instructions](https://github.com/GoogleCloudPlatform/cluster-toolkit/tree/main/examples/gke-a4)
+to create your a4 GKE cluster.
 
 ## Training dataset
 
@@ -31,7 +31,7 @@ This recipe uses a mock pretraining dataset provided by the NeMo framework.
 This recipe uses the following docker images:
 
 - `nvcr.io/nvidia/nemo:25.07`
-- `us-docker.pkg.dev/gce-ai-infra/gpudirect-gib/nccl-plugin-gib-arm64:v1.1.0`
+- `us-docker.pkg.dev/gce-ai-infra/gpudirect-gib/nccl-plugin-gib:v1.1.0`
 
 ## Run the recipe
 
@@ -55,7 +55,7 @@ Replace the following values:
  - `<CLUSTER_REGION>`: the region where your cluster is located.
  - `<CLUSTER_NAME>`: the name of your GKE cluster.
  - `<GCS_BUCKET>`: the name of your Cloud Storage bucket. Don't include the `gs://` prefix.
- - `<KUEUE_NAME>`: the name of the Kueue local queue. The default queue created by the cluster toolkit is `a4x`. Make sure to verify the name of the local queue in your cluster.
+ - `<KUEUE_NAME>`: the name of the Kueue local queue. The default queue created by the cluster toolkit is `a4`. Make sure to verify the name of the local queue in your cluster.
 
 Set the default project:
 
@@ -71,7 +71,7 @@ Clone the `gpu-recipes` repository and set a reference to the recipe folder.
 git clone https://github.com/ai-hypercomputer/gpu-recipes.git
 cd gpu-recipes
 export REPO_ROOT=`git rev-parse --show-toplevel`
-export RECIPE_ROOT=$REPO_ROOT/training/a4x/llama3-1-405b/nemo-pretraining-gke/64node-FP8CS-GBS2048/recipe
+export RECIPE_ROOT=$REPO_ROOT/training/a4/llama3-1-405b/nemo-pretraining-gke/8node-fp8cs-seq8192-gbs256/recipe
 cd $RECIPE_ROOT
 ```
 
@@ -83,51 +83,53 @@ gcloud container clusters get-credentials $CLUSTER_NAME --region $CLUSTER_REGION
 
 ### Configure and submit a pretraining job
 
-#### Using 64 node (256 gpus) fp8 precision
+#### Using 8 node (64 gpus) bf16 precision
 To execute the job with the default settings, run the following command from
 your client:
 
-    cd $RECIPE_ROOT
-    export WORKLOAD_NAME=$USER-a4x-llama3-1-405b
-    helm install $WORKLOAD_NAME . -f values.yaml \
-    --set-file workload_launcher=launcher.sh \
-    --set-file workload_config=llama3-1-405b-fp8cs-gbs2048-gpus256.py \
-    --set workload.image=nvcr.io/nvidia/nemo:25.07 \
-    --set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
-    --set volumes.gcsMounts[0].mountPath=/job-logs \
-    --set workload.envs[0].value=/job-logs/$WORKLOAD_NAME \
-    --set queue=${KUEUE_NAME}
+```bash
+cd $RECIPE_ROOT
+export WORKLOAD_NAME=$USER-a4-llama3-1-405b-8node
+helm install $WORKLOAD_NAME . -f values.yaml \
+--set-file workload_launcher=launcher.sh \
+--set-file workload_config=llama3-1-405b-seq8192-gbs2048-mbs1-gpus64.py \
+--set workload.image=nvcr.io/nvidia/nemo:25.07 \
+--set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
+--set volumes.gcsMounts[0].mountPath=/job-logs \
+--set workload.envs[0].value=/job-logs/$WORKLOAD_NAME \
+--set queue=${KUEUE_NAME}
+```
 
 **Examples**
 
 -   To set the number of training steps to 100, run the following command from
     your client:
 
-```bash
-cd $RECIPE_ROOT
-export WORKLOAD_NAME=$USER-a4x-llama3-1-405b
-helm install $WORKLOAD_NAME . -f values.yaml \
---set-file workload_launcher=launcher.sh \
---set-file workload_config=llama3-1-405b-fp8cs-gbs2048-gpus256.py \
---set workload.image=nvcr.io/nvidia/nemo:25.07 \
---set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
---set volumes.gcsMounts[0].mountPath=/job-logs \
---set workload.envs[0].value=/job-logs/$WORKLOAD_NAME \
---set queue=${KUEUE_NAME} \
---set workload.arguments[0]="max_steps=100"
-```
+    ```bash
+    cd $RECIPE_ROOT
+    export WORKLOAD_NAME=$USER-a4-llama3-1-405b-8node
+    helm install $WORKLOAD_NAME . -f values.yaml \
+    --set-file workload_launcher=launcher.sh \
+    --set-file workload_config=llama3-1-405b-seq8192-gbs2048-mbs1-gpus64.py \
+    --set workload.image=nvcr.io/nvidia/nemo:25.07 \
+    --set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
+    --set volumes.gcsMounts[0].mountPath=/job-logs \
+    --set workload.envs[0].value=/job-logs/$WORKLOAD_NAME \
+    --set queue=${KUEUE_NAME} \
+    --set workload.arguments[0]="trainer.max_steps=100"
+    ```
 
 ### Monitor the job
 
 To check the status of pods in your job, run the following command:
 
 ```
-kubectl get pods | grep $USER-a4x-llama3-1-405b
+kubectl get pods | grep $USER-a4-llama3-1-405b-8node
 ```
 
 Replace the following:
 
-- JOB_NAME_PREFIX - your job name prefix. For example $USER-a4x-llama3-1-405b.
+- JOB_NAME_PREFIX - your job name prefix. For example $USER-a4-llama3-1-405b-8node.
 
 To get the logs for one of the pods, run the following command:
 
@@ -139,7 +141,7 @@ Information about the training job's progress, including crucial details such as
 loss, step count, and step time, is generated by the rank 0 process.
 This process runs on the pod whose name begins with
 `JOB_NAME_PREFIX-workload-0-0`.
-For example: `$USER-a4x-llama3-1-405b-workload-0-0-s9zrv`.
+For example: `$USER-a4-llama3-1-405b-8node-workload-0-0-s9zrv`.
 
 ### Uninstall the Helm release
 
@@ -147,5 +149,5 @@ You can delete the job and other resources created by the Helm chart. To
 uninstall Helm, run the following command from your client:
 
 ```bash
-helm uninstall $USER-a4x-llama3-1-405b
+helm uninstall $USER-a4-llama3-1-405b-8node
 ```
