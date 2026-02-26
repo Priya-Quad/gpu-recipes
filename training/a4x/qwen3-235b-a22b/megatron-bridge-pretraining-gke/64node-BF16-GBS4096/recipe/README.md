@@ -1,7 +1,7 @@
 <!-- mdformat global-off -->
 # Pretrain qwen3-235b-a22b-bf16-gbs4096-gpus256 workloads on a4x GKE Node pools with Megatron-Bridge
 
-This recipe outlines the steps for running a qwen3-30b pretraining
+This recipe outlines the steps for running a qwen3-235b-a22b pretraining
 workload on [a4x GKE Node pools](https://cloud.google.com/kubernetes-engine) by using the
 [NVIDIA Megatron-Bridge framework](https://github.com/NVIDIA-NeMo/Megatron-Bridge).
 
