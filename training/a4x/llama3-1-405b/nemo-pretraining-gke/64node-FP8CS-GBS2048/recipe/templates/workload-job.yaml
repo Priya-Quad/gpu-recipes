@@ -96,44 +96,39 @@ spec:
               {{- end }}
               {{- end }}
           spec:
-            nodeSelector:
-            {{- toYaml .Values.workload.nodeSelector | nindent 14 }}
             {{- if $root.Values.network.hostNetwork }}
             hostNetwork: true
             dnsPolicy: ClusterFirstWithHostNet
             {{- end }}
             subdomain: "{{.Release.Name}}"
             restartPolicy: Never
-            {{- if or $root.Values.targetNodes $root.Values.avoidNodes $root.Values.targetNodepools }}
+            {{- if $root.Values.targetNodes }}
             affinity:
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
                   - matchExpressions:
-                    {{- if $root.Values.targetNodes }}
                     - key: kubernetes.io/hostname
                       operator: "In"
                       values:
                       {{- range $hostname := $root.Values.targetNodes }}
                       - {{ $hostname }}
                       {{- end }}
-                    {{- end }}
-                    {{- if $root.Values.avoidNodes }}
+            {{- end }}
+            {{- if $root.Values.avoidNodes }}
+            {{- if not $root.Values.targetNodes }}
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+            {{- end }}
+                  nodeSelectorTerms:
+                  - matchExpressions:
                     - key: kubernetes.io/hostname
                       operator: "NotIn"
                       values:
                       {{- range $hostname := $root.Values.avoidNodes }}
                       - {{ $hostname }}
                       {{- end }}
-                    {{- end }}
-                    {{- if $root.Values.targetNodepools }}
-                    - key: cloud.google.com/gke-nodepool
-                      operator: "In"
-                      values:
-                      {{- range $nodepool := $root.Values.targetNodepools }}
-                      - {{ $nodepool }}
-                      {{- end }}
-                    {{- end }}
             {{- end }}
             tolerations:
             - operator: "Exists"
@@ -151,12 +146,14 @@ spec:
               emptyDir: {}
             {{ end }}
 
+            {{- if $root.Values.workload.configFile }}
             - name: workload-configuration
               configMap:
                 name: "{{.Release.Name}}-config"
                 items:
                 - key: workload-configuration
                   path: {{ $root.Values.workload.configFile | default "workload-configuration" }}
+            {{- end }}
 
             - name: workload-launcher
               configMap:
@@ -322,8 +319,10 @@ spec:
                   mountPath: /usr/local/gib
                 {{ end }}
 
+                {{- if $root.Values.workload.configFile }}
                 - name: workload-configuration
                   mountPath: {{ $root.Values.workload.configPath | default "/workload/configs" }}
+                {{- end }}
 
                 - name: workload-launcher
                   mountPath: /workload/launcher
