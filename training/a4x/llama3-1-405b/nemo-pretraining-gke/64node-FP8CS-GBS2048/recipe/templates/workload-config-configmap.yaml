@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+{{- if .Values.workload.configFile }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -23,4 +24,5 @@ data:
 {{ .Values.workload_config | nindent 4 }}
 {{- else }}
 {{ "config: null" | nindent 4 }}
+{{- end }}
 {{- end }}
