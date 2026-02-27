@@ -61,7 +61,7 @@ Clone the Megatron-Bridge repository:
 ```bash
 git clone https://github.com/NVIDIA-NeMo/Megatron-Bridge.git
 cd Megatron-Bridge
-git checkout minor_cfg_updates_2509
+git checkout e40c651db0ef51484db15653feaac4634b7fe7a9
 cd ${BASE_DIR}
 ```
 
