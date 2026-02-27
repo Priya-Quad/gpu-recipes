@@ -90,14 +90,6 @@ docker run --gpus '"device=0"' -it --rm \
 
 Now you are inside the container.
 
-### 4. Download model
-
-```bash
-# Inside the container
-export TMPDIR=/tmp
-huggingface-cli download Wan-AI/Wan2.2-T2V-A14B-Diffusers --local-dir ./weights/T2V
-```
-
 ## Run Benchmarks
 
 Running the benchmarks with different configurations.
