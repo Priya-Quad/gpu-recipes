@@ -100,7 +100,7 @@ huggingface-cli download Wan-AI/Wan2.2-T2V-A14B-Diffusers --local-dir ./weights/
 
 ## Run Benchmarks
 
-Create a script to run the benchmarks with different configurations.
+Running the benchmarks with different configurations.
 
 ```bash
 #Benchmark with 1gpu 13 frames
