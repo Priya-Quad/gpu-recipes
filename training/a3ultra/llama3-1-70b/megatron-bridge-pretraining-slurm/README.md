@@ -62,7 +62,7 @@ Clone the Megatron-Bridge repository:
 cd ${BASE_DIR}
 git clone https://github.com/NVIDIA-NeMo/Megatron-Bridge.git
 cd Megatron-Bridge
-git checkout e40c651db0ef51484db15653feaac4634b7fe7a9
+git fetch origin e40c651db0ef51484db15653feaac4634b7fe7a9
 ```
 
 ### Configure and submit a pretraining job
