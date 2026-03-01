@@ -1,4 +1,4 @@
-# Single host inference & Multi host inference benchmark of Wan-AI/Wan2.2-T2V-A14B & Wan-AI/Wan2.2-I2V-A14B with Sglang on A4
+# Single host inference & Multi host inference benchmark of Wan-AI/Wan2.2-T2V-A14B & Wan-AI/Wan2.2-I2V-A14B with Sglang on A4X
 
 This document outlines the steps to serve and benchmark various Large Language Models (LLMs) using the [SGLang](https://github.com/sgl-project/sglang/tree/main) framework
 ## Before you begin
