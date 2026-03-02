@@ -1,8 +1,8 @@
 # Benchmark of Wan-AI/Wan2.2-T2V-A14B & Wan-AI/Wan2.2-I2V-A14B with Sglang on A4X
 
 This document outlines the steps to serve and benchmark various Large Language Models (LLMs) using the [SGLang](https://github.com/sgl-project/sglang/tree/main) framework
-
-##1. Environment setup
+ 
+### 1.1. Environment setup
 
 ### 1.1. Clone the Repository
 
