@@ -12,7 +12,7 @@ Make sure you have the following prerequisites:
 *   You have a project with a GPU quota. See [Request a quota increase](https://cloud.google.com/docs/quota/view-request#requesting_higher_quota).
 *   [Enable required APIs](https://console.cloud.google.com/flows/enableapi?apiid=compute.googleapis.com).
 
-The following commands set up environment variables and create a GCE instance. The `MACHINE_TYPE` is set to `g4-standard-384` for a multi-GPU VM (8 GPUs). The boot disk is set to 200GB to accommodate the models and dependencies.
+The following commands set up environment variables and create a GCE instance. The `MACHINE_TYPE` is set to `a4-highgpu-8g` for a multi-GPU VM (8 GPUs). The boot disk is set to 200GB to accommodate the models and dependencies.
 
 ```bash
 export VM_NAME="${USER}-a4-sglang-wan2.2"
@@ -60,19 +60,25 @@ cd sglang
 FROM nvcr.io/nvidia/pytorch:25.01-py3
 WORKDIR /sgl-workspace
 
-# Build fixes for setuptools_scm
+# Use ENV to avoid having to 'source' the venv constantly
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:/root/.local/bin:$PATH"
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
 COPY python/pyproject.toml python/
 RUN mkdir -p python/sglang && echo "# Placeholder" > python/README.md
 
-# Install dependencies using 'uv'
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    /root/.local/bin/uv venv --python 3.12 --seed /opt/venv && \
-    source /opt/venv/bin/activate && \
-    /root/.local/bin/uv pip install --no-cache-dir nvitop huggingface_hub[cli] accelerate && \
-    /root/.local/bin/uv pip install --no-cache-dir --prerelease=allow './python[diffusion]'
+# Create venv and install deps
+RUN uv venv --python 3.12 $VIRTUAL_ENV && \
+    uv pip install --no-cache-dir nvitop huggingface_hub[cli] accelerate && \
+    uv pip install --no-cache-dir --prerelease=allow './python[diffusion]'
+
 COPY . .
-RUN source /opt/venv/bin/activate && \
-    /root/.local/bin/uv pip install --reinstall --no-cache-dir --no-deps './python[diffusion]'
+
+# Final sync/install of the actual source code
+RUN uv pip install --reinstall --no-cache-dir --no-deps './python[diffusion]'
 
 RUN echo 'source /opt/venv/bin/activate' >> /root/.bashrc
 
@@ -81,10 +87,10 @@ docker build -t sglang-wan-blackwell -f Dockerfile.sgl-wan .
 
 # Run the Docker container
 mkdir -p /scratch/cache
-docker run --gpus '"device=0"' -it --rm \
+docker run --gpus '"device=0"' -it --rm \ #To run the benchmark on 4gpu's we must start the docker container with 4gpu's
     --ipc=host --network=host \
     -v $(pwd):/sgl-workspace/sglang \
-    -v /home/pkesana_google_com/Wan2.2-weights:/sgl-workspace/weights \
+    -v /scratch:/scratch \
     sglang-wan-blackwell
 ```
 
@@ -100,7 +106,7 @@ sglang generate --model-path Wan-AI/Wan2.2-T2V-A14B-Diffusers  --dit-layerwise-o
 ```
 ```bash
 #Benchmark with 4gpu 81 frames
-sglang generate --model-path Wan-AI/Wan2.2-T2V-A14B-Diffusers  --dit-layerwise-offload false --text-encoder-cpu-offload false --vae-cpu-offload false --pin-cpu-memory --dit-cpu-offload false     --prompt "Summer beach vacation style, a white cat wearing sunglasses sits on a surfboard. The fluffy-furred feline gazes directly at the camera with a relaxed expression. Blurred beach scenery forms the background featuring crystal-clear waters, distant green hills, and a blue sky dotted with white clouds. The cat assumes a naturally relaxed posture, as if savoring the sea breeze and warm sunlight. A close-up shot highlights the feline's intricate details and the refreshing atmosphere of the seaside."     --save-output --num-gpus 4 --tp_size 4 --num-frames 81
+sglang generate --model-path Wan-AI/Wan2.2-T2V-A14B-Diffusers  --dit-layerwise-offload false --text-encoder-cpu-offload false --vae-cpu-offload false --pin-cpu-memory --dit-cpu-offload false     --prompt "Summer beach vacation style, a white cat wearing sunglasses sits on a surfboard. The fluffy-furred feline gazes directly at the camera with a relaxed expression. Blurred beach scenery forms the background featuring crystal-clear waters, distant green hills, and a blue sky dotted with white clouds. The cat assumes a naturally relaxed posture, as if savoring the sea breeze and warm sunlight. A close-up shot highlights the feline's intricate details and the refreshing atmosphere of the seaside."     --save-output --num-gpus 4 --tp_size 4 --num-frames 93
 
 ```
 
