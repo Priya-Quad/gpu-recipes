@@ -1,6 +1,6 @@
 # Benchmark of Wan-AI/Wan2.2-T2V-A14B & Wan-AI/Wan2.2-I2V-A14B with Sglang on A4X
 
-This document outlines the steps to serve and benchmark various Large Language Models (LLMs) using the [SGLang](https://github.com/sgl-project/sglang/tree/main) framework
+This document outlines the steps to serve Models using the [SGLang](https://github.com/sgl-project/sglang/tree/main) framework
  
 ### 1. Before you begin
 
@@ -10,7 +10,7 @@ This document outlines the steps to serve and benchmark various Large Language M
 git clone https://github.com/ai-hypercomputer/gpu-recipes.git
 cd gpu-recipes
 export REPO_ROOT=$(pwd)
-export RECIPE_ROOT=$REPO_ROOT/inference/a4/single-host-serving/sglang/Wan2.2
+export RECIPE_ROOT=$REPO_ROOT/inference/a4x/single-host-serving/sglang/Wan2.2
 ```
 
 <a name="configure-vars"></a>
@@ -140,12 +140,5 @@ sglang generate --model-path Wan-AI/Wan2.2-I2V-A14B-Diffusers --image-path sampl
 #Benchmark with 4gpu 93 frames
 sglang generate --model-path Wan-AI/Wan2.2-I2V-A14B-Diffusers --image-path sample_image.jpg --dit-layerwise-offload false --text-encoder-cpu-offload false --vae-cpu-offload false --pin-cpu-memory --dit-cpu-offload false     --prompt "A curious raccoon"     --save-output --num-gpus 4 --tp-size 4 --num-frames 93
 
-```
-### 2. Delete the VM
-
-This command will delete the GCE instance and all its disks.
-
-```bash
-gcloud compute instances delete ${VM_NAME?} --zone=${ZONE?} --project=${PROJECT_ID} --quiet --delete-disks=all
 ```
 .
