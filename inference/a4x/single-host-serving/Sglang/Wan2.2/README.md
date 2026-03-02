@@ -42,6 +42,7 @@ Replace the following values:
 | `CLUSTER_REGION` | The GCP region where your GKE cluster is located. | `us-central1` |
 | `CLUSTER_NAME` | The name of your GKE cluster. | `a4x-gke-cluster` |
 | `KUEUE_NAME` | The name of the Kueue local queue. The default queue created by the cluster toolkit is `a4`. Verify the name in your cluster. | `a4` |
+| `ARTIFACT_REGISTRY` | Full path to your Artifact Registry repository. | `us-central1-docker.pkg.dev/gcp-project-12345/my-repo` |
 | `GCS_BUCKET` | Name of your GCS bucket (do not include `gs://`). | `my-benchmark-logs-bucket` |
 | `SGLANG_IMAGE` | The name for the Docker image to be built. | `lmsysorg/sglang:dev` |
 | `SGLANG_VERSION` | The tag/version for the Docker image. | `blackwell` |
