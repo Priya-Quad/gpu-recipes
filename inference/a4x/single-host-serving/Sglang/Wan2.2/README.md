@@ -12,13 +12,13 @@ Make sure you have the following prerequisites:
 *   You have a project with a GPU quota. See [Request a quota increase](https://cloud.google.com/docs/quota/view-request#requesting_higher_quota).
 *   [Enable required APIs](https://console.cloud.google.com/flows/enableapi?apiid=compute.googleapis.com).
 
-The following commands set up environment variables and create a GCE instance. The `MACHINE_TYPE` is set to `A4X-highgpu-8g` for a multi-GPU VM (8 GPUs). The boot disk is set to 200GB to accommodate the models and dependencies.
+The following commands set up environment variables and create a GCE instance. The `MACHINE_TYPE` is set to `a4x-highgpu-8g` for a multi-GPU VM (8 GPUs). The boot disk is set to 200GB to accommodate the models and dependencies.
 
 ```bash
 export VM_NAME="${USER}-A4X-sglang-wan2.2"
 export PROJECT_ID="your-project-id"
 export ZONE="your-zone"
-export MACHINE_TYPE="A4X-highgpu-8g"
+export MACHINE_TYPE="a4x-highgpu-8g"
 export IMAGE_PROJECT="ubuntu-os-accelerator-images"
 export IMAGE_FAMILY="ubuntu-accelerator-2404-amd64-with-nvidia-570"
 
