@@ -2,7 +2,7 @@
 
 This document outlines the steps to serve and benchmark various Large Language Models (LLMs) using the [SGLang](https://github.com/sgl-project/sglang/tree/main) framework
  
-### 1.1. Environment setup
+### 1. Before you begin
 
 ### 1.1. Clone the Repository
 
