@@ -67,7 +67,6 @@ You can follow the official NVIDIA documentation to install the container toolki
 sudo apt-get update
 sudo apt-get -y install git git-lfs
 
-mkdir -p ~/sglang_build && cd ~/sglang_build
 git clone https://github.com/sgl-project/sglang.git 
 cd sglang
 
