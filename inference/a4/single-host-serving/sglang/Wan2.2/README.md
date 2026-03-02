@@ -47,54 +47,31 @@ nvidia-smi
 
 ## Serve a model
 
-### 1. Settingup Sglang & Run Docker File
+### 1. Install Docker
+
+Before you can serve the model, you need to have Docker installed on your VM. You can follow the official documentation to install Docker on Ubuntu:
+[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+
+After installing Docker, make sure the Docker daemon is running.
+
+### 2. Install NVIDIA Container Toolkit
+
+To enable Docker containers to access the GPU, you need to install the NVIDIA Container Toolkit.
+
+You can follow the official NVIDIA documentation to install the container toolkit:
+[NVIDIA Container Toolkit Install Guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+### 3. Setup Sglang
 
 ```bash
 sudo apt-get update
 sudo apt-get -y install git git-lfs
+
 mkdir -p ~/sglang_build && cd ~/sglang_build
 git clone https://github.com/sgl-project/sglang.git 
 cd sglang
 
-# Use CUDA 12.8 native image for Blackwell support
-FROM nvcr.io/nvidia/pytorch:25.01-py3
-WORKDIR /sgl-workspace
-
-# Use ENV to avoid having to 'source' the venv constantly
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="$VIRTUAL_ENV/bin:/root/.local/bin:$PATH"
-
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
-COPY python/pyproject.toml python/
-RUN mkdir -p python/sglang && echo "# Placeholder" > python/README.md
-
-# Create venv and install deps
-RUN uv venv --python 3.12 $VIRTUAL_ENV && \
-    uv pip install --no-cache-dir nvitop huggingface_hub[cli] accelerate && \
-    uv pip install --no-cache-dir --prerelease=allow './python[diffusion]'
-
-COPY . .
-
-# Final sync/install of the actual source code
-RUN uv pip install --reinstall --no-cache-dir --no-deps './python[diffusion]'
-
-RUN echo 'source /opt/venv/bin/activate' >> /root/.bashrc
-
-# Build the Docker image
-docker build -t sglang-wan-blackwell -f Dockerfile.sgl-wan .
-
-# Run the Docker container
-mkdir -p /scratch/cache
-docker run --gpus '"device=0"' -it --rm \ #To run the benchmark on 4gpu's we must start the docker container with 4gpu's
-    --ipc=host --network=host \
-    -v $(pwd):/sgl-workspace/sglang \
-    -v /scratch:/scratch \
-    sglang-wan-blackwell
 ```
-
-Now you are inside the container.
 
 ## Run Benchmarks
 
