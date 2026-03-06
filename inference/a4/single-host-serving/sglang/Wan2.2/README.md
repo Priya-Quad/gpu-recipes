@@ -262,8 +262,7 @@ Upon launching the SGLang server, it performs the following steps:
 
     ```bash
     cd $RECIPE_ROOT
-
-helm install -f values.yaml \
+    helm install -f values.yaml \
   --set-file workload_launcher=$REPO_ROOT/src/launchers/sglang-launcher.sh \
   --set-file serving_config=$REPO_ROOT/src/frameworks/a4/sglang-configs/wan2.2.yaml \
   --set queue=${KUEUE_NAME} \
@@ -271,8 +270,9 @@ helm install -f values.yaml \
   --set workload.model.name=Wan-AI/Wan2.2-T2V-A14B-Diffusers \
   --set workload.image=${ARTIFACT_REGISTRY}/${SGLANG_IMAGE}:${SGLANG_VERSION} \
   --set workload.framework=sglang \
-  $USER-serving-wan-t2v \
+  $USER-serving-wan2.2-model \
   $REPO_ROOT/src/helm-charts/a4/inference-templates/deployment
+
     ```
 
     This creates a Helm release and a Deployment named `$USER-serving-wan2.2-model`, and a Service named `$USER-serving-wan2.2-model-svc`.
