@@ -26,12 +26,12 @@ huggingface:
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
-  # 1. Added Shared Memory (Required for NCCL / Blackwell TP)
+  # Shared Memory is mandatory for Blackwell A4 clusters
   shm:
     enabled: true
     size: "32Gi"
     name: "dshm"
-  # 2. Added the required 'name' field to gcsMounts
+  # GCS Mount must have a name field
   gcsMounts:
     - name: "gcs-fuse"
       bucketName: "${GCS_BUCKET}"
