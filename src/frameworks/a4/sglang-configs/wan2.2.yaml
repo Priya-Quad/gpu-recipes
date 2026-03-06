@@ -1,0 +1,15 @@
+# SGLang Diffusion Configuration for Wan2.2 (Blackwell B200)
+model_path: "Wan-AI/Wan2.2-I2V-A14B-Diffusers"
+backend: "auto"
+dtype: "bfloat16"
+
+# A4 Node Specifics
+tp_size: 4                 # Shard across 4 GPUs
+nccl_nvls_enable: "1"      # Force Blackwell NVLink Switch
+enable_torch_compile: true # Critical for Blackwell performance
+
+# Diffusion Specifics
+num_frames: 93
+height: 720
+width: 1280
+dit_layerwise_offload: false
