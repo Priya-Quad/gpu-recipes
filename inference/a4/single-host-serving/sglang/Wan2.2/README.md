@@ -258,6 +258,7 @@ Upon launching the SGLang server, it performs the following steps:
 
 <a name="deploy-wan2.2"></a>
 #### 4.1.1. Deploy Wan2.2
+
 1.  **Install the helm chart to prepare and serve the model using SGLang framework:**
 
     ```bash
