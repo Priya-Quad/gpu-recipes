@@ -265,6 +265,24 @@ Upon launching the SGLang server, it performs the following steps:
     cd $RECIPE_ROOT
     helm install -f values.yaml \
   --set-file workload_launcher=$REPO_ROOT/src/launchers/sglang-launcher.sh \
+  --set-file serving_config=$REPO_ROOT/src/frameworks/a4/sglang-configs/deepseek-r1-671b.yaml \
+  --set queue=${KUEUE_NAME} \
+  --set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
+  --set workload.model.name=deepseek-ai/DeepSeek-R1 \
+  --set workload.image=${ARTIFACT_REGISTRY}/${SGLANG_IMAGE}:${SGLANG_VERSION} \
+  --set workload.framework=sglang \
+  $USER-serving-deepseek-r1-model \
+  $REPO_ROOT/src/helm-charts/a4/inference-templates/deployment
+    ```
+
+    This creates a Helm release and a Deployment named `$USER-serving-deepseek-r1-model`, and a Service named `$USER-serving-deepseek-r1-model-svc`.
+    
+1.  **Install the helm chart to prepare and serve the model using SGLang framework:**
+
+    ```bash
+    cd $RECIPE_ROOT
+    helm install -f values.yaml \
+  --set-file workload_launcher=$REPO_ROOT/src/launchers/sglang-launcher.sh \
   --set-file serving_config=$REPO_ROOT/src/frameworks/a4/sglang-configs/wan2.2.yaml \
   --set queue=${KUEUE_NAME} \
   --set volumes.gcsMounts[0].bucketName=${GCS_BUCKET} \
