@@ -26,14 +26,16 @@ huggingface:
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
+  # 1. Added Shared Memory (Mandatory for Blackwell TP)
   shm:
     enabled: true
     size: "32Gi"
-    name: "dshm"       # Requirement 1: Template needs this name
+    name: "dshm"       
+  # 2. Added the required 'name' field to gcsMounts
   gcsMounts:
-    - name: "gcs-fuse" # Requirement 2: Template needs this name
+    - name: "gcs-fuse" 
+      bucketName: "${GCS_BUCKET}"
       mountPath: "/gcs"
-      # Leave bucketName out of the YAML file if you are using --set in the command
       
 service:
   type: ClusterIP
