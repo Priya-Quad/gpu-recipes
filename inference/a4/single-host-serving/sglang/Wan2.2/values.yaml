@@ -26,16 +26,15 @@ huggingface:
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
-  # Shared Memory is mandatory for Blackwell A4 clusters
   shm:
     enabled: true
     size: "32Gi"
-    name: "dshm"
-  # GCS Mount must have a name field
+    name: "dshm"       # Requirement 1: Template needs this name
   gcsMounts:
-    - name: "gcs-fuse"
-      bucketName: "${GCS_BUCKET}"
+    - name: "gcs-fuse" # Requirement 2: Template needs this name
       mountPath: "/gcs"
+      # Leave bucketName out of the YAML file if you are using --set in the command
+      
 service:
   type: ClusterIP
   ports:
