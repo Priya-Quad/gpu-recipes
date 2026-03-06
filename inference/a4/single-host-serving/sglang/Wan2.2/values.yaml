@@ -1,16 +1,16 @@
-# 1. Kueue & Scheduling
+# 1. Kueue & Scheduling (Targeting the Blackwell Pool)
 queue: tas-lq
 
 dwsSettings:
   maxRunDurationSeconds: 604800
 
-# 2. Authentication
+# 2. Secure Authentication 
+# This pulls the token from a K8s Secret instead of plain text
 huggingface:
-  secretName: hf-secret
-  secretData:
-    token: "hf_api_token"
+  secretName: hf-secret  # Name of the secret in your namespace
+  # secretData block removed to prevent hardcoding
 
-# 3. Storage
+# 3. Storage Strategy (Local SSD for Cache, GCS for Results)
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
@@ -18,34 +18,34 @@ volumes:
     - bucketName: depksingh-test-chpt
       mountPath: "/gcs"
 
-# 4. Networking & Service
+# 4. Networking & Service Configuration
 service:
   type: ClusterIP
   ports:
     http: 8000
 
-# 5. Wan2.2 Workload Configuration
+# 5. Wan2.2 Workload Configuration (Blackwell B200 Optimized)
 workload:
   model:
     name: Wan-AI/Wan2.2-T2V-A14B-Diffusers
-  gpus: 1  # Adjusted from 8 to 1 for Wan2.2
+  gpus: 1  
   image: us-docker.pkg.dev/gke-ai-infra/gpu-recipes/sglang:latest
   framework: sglang
   configFile: serving-args.yaml
   configPath: /workload/configs
   envs:
     - name: HF_HUB_ENABLE_HF_TRANSFER
-      value: "1"
+      value: "1"  
+    - name: HF_HOME
+      value: "/ssd"  
     - name: LAUNCHER_SCRIPT
       value: "/workload/launcher/launch-workload.sh"
     - name: SERVER_ARGS_FILE
       value: "/workload/configs/serving-args.yaml"
-    - name: HF_HOME
-      value: "/ssd"
     - name: LD_LIBRARY_PATH
       value: "/usr/local/nvidia/lib64:/usr/local/lib/"
 
-# 6. Blackwell Specific Networking
+# 6. Blackwell Specific Performance Networking
 network:
   subnetworks: []
   gibVersion: us-docker.pkg.dev/gce-ai-infra/gpudirect-gib/nccl-plugin-gib:v1.0.5
