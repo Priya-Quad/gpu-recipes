@@ -26,10 +26,16 @@ huggingface:
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
+  # 1. Added Shared Memory (Required for NCCL / Blackwell TP)
+  shm:
+    enabled: true
+    size: "32Gi"
+    name: "dshm"
+  # 2. Added the required 'name' field to gcsMounts
   gcsMounts:
-    - bucketName: ${GCS_BUCKET}
+    - name: "gcs-fuse"
+      bucketName: "${GCS_BUCKET}"
       mountPath: "/gcs"
-
 service:
   type: ClusterIP
   ports:
