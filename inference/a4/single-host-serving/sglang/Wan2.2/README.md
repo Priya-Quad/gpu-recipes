@@ -259,10 +259,10 @@ Upon launching the SGLang server, it performs the following steps:
 <a name="deploy-wan2.2"></a>
 #### 4.1.1. Deploy Wan2.2
 1.  **Install the helm chart to prepare and serve the model using SGLang framework:**
-
-    ```bash
+```bash
     cd $RECIPE_ROOT
-    helm install -f values.yaml \
+
+helm install -f values.yaml \
   --set-file workload_launcher=$REPO_ROOT/src/launchers/sglang-launcher.sh \
   --set-file serving_config=$REPO_ROOT/src/frameworks/a4/sglang-configs/wan2.2.yaml \
   --set queue=${KUEUE_NAME} \
@@ -272,7 +272,6 @@ Upon launching the SGLang server, it performs the following steps:
   --set workload.framework=sglang \
   $USER-serving-wan2.2-model \
   $REPO_ROOT/src/helm-charts/a4/inference-templates/deployment
-
     ```
 
     This creates a Helm release and a Deployment named `$USER-serving-wan2.2-model`, and a Service named `$USER-serving-wan2.2-model-svc`.
