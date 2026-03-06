@@ -1,55 +1,53 @@
-# Optimized for Wan2.2 Diffusion on Blackwell (A4)
-queue: "${KUEUE_NAME}"
+# 1. Kueue & Scheduling
+queue: tas-lq
 
+dwsSettings:
+  maxRunDurationSeconds: 604800
+
+# 2. Authentication
 huggingface:
   secretName: hf-secret
   secretData:
     token: "hf_api_token"
 
+# 3. Storage
 volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
-  # --- ADDED FOR BLACKWELL: Shared Memory is mandatory ---
-  shm:
-    enabled: true
-    size: "32Gi"
-    name: "dshm"
-  # --- FIXED: Every mount must have a name ---
   gcsMounts:
-    - name: "gcs-fuse"
-      bucketName: "${GCS_BUCKET}"
+    - bucketName: depksingh-test-chpt
       mountPath: "/gcs"
 
+# 4. Networking & Service
 service:
   type: ClusterIP
   ports:
     http: 8000
 
+# 5. Wan2.2 Workload Configuration
 workload:
   model:
-    name: "Wan-AI/Wan2.2-T2V-A14B-Diffusers"
-  # Wan2.2 A14B runs perfectly on 4 Blackwell GPUs (TP=4)
-  gpus: 4 
-  image: "${ARTIFACT_REGISTRY}/${SGLANG_IMAGE}:${SGLANG_VERSION}"
+    name: Wan-AI/Wan2.2-T2V-A14B-Diffusers
+  gpus: 1  # Adjusted from 8 to 1 for Wan2.2
+  image: us-docker.pkg.dev/gke-ai-infra/gpu-recipes/sglang:latest
   framework: sglang
-  configFile: "wan2.2.yaml" 
-  configPath: "/workload/configs"
+  configFile: serving-args.yaml
+  configPath: /workload/configs
   envs:
     - name: HF_HUB_ENABLE_HF_TRANSFER
       value: "1"
-    - name: NCCL_NVLS_ENABLE
-      value: "1"  # CRITICAL for Blackwell NVLink Switch
-    - name: SGLANG_USE_FLASHINFER
-      value: "1"  # Optimized kernels for Blackwell
     - name: LAUNCHER_SCRIPT
       value: "/workload/launcher/launch-workload.sh"
     - name: SERVER_ARGS_FILE
-      value: "/workload/configs/wan2.2.yaml"
+      value: "/workload/configs/serving-args.yaml"
     - name: HF_HOME
       value: "/ssd"
+    - name: LD_LIBRARY_PATH
+      value: "/usr/local/nvidia/lib64:/usr/local/lib/"
 
+# 6. Blackwell Specific Networking
 network:
-  hostNetwork: true
+  subnetworks: []
   gibVersion: us-docker.pkg.dev/gce-ai-infra/gpudirect-gib/nccl-plugin-gib:v1.0.5
   ncclSettings:
     - name: NCCL_DEBUG
