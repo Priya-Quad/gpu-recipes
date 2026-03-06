@@ -273,8 +273,7 @@ Upon launching the SGLang server, it performs the following steps:
   --set workload.framework=sglang \
   $USER-serving-wan2.2-model \
   $REPO_ROOT/src/helm-charts/a4/inference-templates/deployment
-  
-    ```
+  ```
 
     This creates a Helm release and a Deployment named `$USER-serving-wan2.2-model`, and a Service named `$USER-serving-wan2.2-model-svc`.
 
