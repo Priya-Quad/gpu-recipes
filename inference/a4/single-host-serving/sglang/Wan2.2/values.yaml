@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Optimized for Wan2.2 Diffusion on Blackwell (A4)
 
-queue:
+queue: ${KUEUE_NAME}
 
 dwsSettings:
-  maxRunDurationSeconds:
+  maxRunDurationSeconds: 7200 # Increased for long video benchmarks
 
 huggingface:
   secretName: hf-secret
@@ -26,7 +27,7 @@ volumes:
   gcsVolumes: true
   ssdMountPath: "/ssd"
   gcsMounts:
-    - bucketName:
+    - bucketName: ${GCS_BUCKET}
       mountPath: "/gcs"
 
 service:
@@ -36,27 +37,34 @@ service:
 
 workload:
   model:
-    name:
-  gpus: 8
-  image:
-  framework:
-  configFile: serving-args.yaml
+    name: "Wan-AI/Wan2.2-I2V-A14B-Diffusers"
+  # Shard across 4 Blackwell GPUs (TP=4)
+  gpus: 4 
+  image: ${ARTIFACT_REGISTRY}/${SGLANG_IMAGE}:${SGLANG_VERSION}
+  framework: sglang
+  # Reference the Wan-specific config we created
+  configFile: wan2_2.yaml 
   configPath: /workload/configs
   envs:
     - name: HF_HUB_ENABLE_HF_TRANSFER
       value: "1"
+    - name: NCCL_NVLS_ENABLE
+      value: "1"  # CRITICAL: Enable Blackwell NVLink Switch
+    - name: SGLANG_USE_FLASHINFER
+      value: "1"  # Optimized kernels for Blackwell
     - name: LAUNCHER_SCRIPT
       value: "/workload/launcher/launch-workload.sh"
     - name: SERVER_ARGS_FILE
-      value: "/workload/configs/serving-args.yaml"
+      value: "/workload/configs/wan2_2.yaml"
     - name: HF_HOME
       value: "/ssd"
     - name: LD_LIBRARY_PATH
       value: "/usr/local/nvidia/lib64:/usr/local/lib/"
 
 network:
-  subnetworks[]:
+  # Standard GKE A4 Network Settings
   gibVersion: us-docker.pkg.dev/gce-ai-infra/gpudirect-gib/nccl-plugin-gib:v1.0.5
   ncclSettings:
     - name: NCCL_DEBUG
+      value: "WARN"
       value: "WARN"
