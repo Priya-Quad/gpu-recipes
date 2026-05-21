@@ -261,7 +261,7 @@ spec:
               value: "/usr/local/nvidia/lib64"
             {{- else }}
             - name: LD_LIBRARY_PATH
-              value: "/usr/local/tcpxo/lib64:/usr/local/nvidia/lib64"
+              value: "/usr/local/tcpxo/lib64:/usr/local/nvidia/lib64:/usr/local/cuda-13.1/targets/x86_64-linux/lib"
             - name: NCCL_LIB_DIR
               value: "/usr/local/tcpxo/lib64"
             {{- end }}
@@ -342,7 +342,15 @@ spec:
           - bash
           - -c
           - |
+            export NCCL_LIB_DIR="/usr/local/tcpxo/lib64"
+            source /usr/local/tcpxo/lib64/nccl-env-profile.sh
+            #export LD_LIBRARY_PATH=/usr/local/tcpxo/lib64:/usr/local/nvidia/lib64:/usr/local/cuda-13.1/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
+            #export NCCL_TUNER_PLUGIN=none
+            #export TRTLLM_DISABLE_AUTOTUNER=1
+            #export TRTLLM_CUSTOM_ALLREDUCE=0
+
             ldconfig 2>/dev/null
+            chmod +x "$LAUNCHER_SCRIPT"
 
             ARGS=()
             while IFS=': ' read -r key value || [ -n "$key" ]; do
