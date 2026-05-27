@@ -310,8 +310,6 @@ spec:
               value: "/usr/local/tcpxo/lib64/a3plus_tuner_config.textproto"
             - name: NCCL_SHIMNET_GUEST_CONFIG_CHECKER_CONFIG_FILE
               value: "/usr/local/tcpxo/lib64/a3plus_guest_config.textproto"
-            - name: NCCL_NVLS_ENABLE
-              value: "1"
             - name: NCCL_FASTRAK_PLUGIN_ACCEPT_TIMEOUT_MS
               value: "600000"
             - name: CUDA_VISIBLE_DEVICES
@@ -342,12 +340,20 @@ spec:
           - bash
           - -c
           - |
-            #export NCCL_LIB_DIR="/usr/local/tcpxo/lib64"
-            #source /usr/local/tcpxo/lib64/nccl-env-profile.sh
+            {{- if not $root.Values.gpuPlatformSettings.useHostPlugin }}
+            export NCCL_LIB_DIR="/usr/local/tcpxo/lib64"
+            source /usr/local/tcpxo/lib64/nccl-env-profile.sh
+            unset NCCL_RUNTIME_CONNECT
+            unset NCCL_GRAPH_REGISTER
             export LD_LIBRARY_PATH=/usr/local/tcpxo/lib64:/usr/local/nvidia/lib64:/usr/local/lib/python3.12/dist-packages/torch/lib:/usr/local/lib/python3.12/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/tensorrt/lib
-            #export NCCL_TUNER_PLUGIN=none
-            #export TRTLLM_DISABLE_AUTOTUNER=1
-            #export TRTLLM_CUSTOM_ALLREDUCE=0
+            {{- else }}
+            export LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/lib/python3.12/dist-packages/torch/lib:/usr/local/lib/python3.12/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/tensorrt/lib  
+            {{- end }}
+            trtllm-bench() {
+                unset NCCL_P2P_LEVEL
+                command trtllm-bench "$@"
+            }
+            export -f trtllm-bench
 
             ldconfig 2>/dev/null
             chmod +x "$LAUNCHER_SCRIPT"
